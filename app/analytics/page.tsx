@@ -3,10 +3,8 @@
 import { SidebarNav } from "@/components/sidebar-nav"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { ProtectedRoute } from "@/components/protected-route"
-import { MetricsGrid } from "@/components/metrics-grid"
-import { ChartsSection } from "@/components/charts-section"
 
-export default function DashboardPage() {
+export default function AnalyticsPage() {
   return (
     <ProtectedRoute>
       <div className="flex min-h-screen bg-background">
@@ -14,10 +12,8 @@ export default function DashboardPage() {
         <div className="flex-1">
           <DashboardHeader />
           <main className="container mx-auto px-4 py-6">
-            <div className="space-y-6">
-              <MetricsGrid />
-              <ChartsSection />
-            </div>
+            <h1 className="text-3xl font-bold mb-6">Analytics</h1>
+            <p className="text-muted-foreground">Analytics page content goes here.</p>
           </main>
         </div>
       </div>
