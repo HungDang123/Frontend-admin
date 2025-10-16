@@ -10,31 +10,51 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { LogIn } from "lucide-react"
+import { apiService } from "@/lib/services/api.service"
+import { setToken } from "@/lib/auth"
+import { useToast } from "@/lib/hooks/use-toast"
 
 export default function LoginPage() {
   const router = useRouter()
+  const toast = useToast()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
     if (!email || !password) {
       setError("Please fill in all fields")
+      toast.warning("Missing Information", "Please fill in all fields")
       return
     }
 
-    // Mock authentication - in production, this would call an API
-    const users = JSON.parse(localStorage.getItem("users") || "[]")
-    const user = users.find((u: any) => u.email === email && u.password === password)
+    setIsLoading(true)
 
-    if (user) {
-      localStorage.setItem("currentUser", JSON.stringify({ email: user.email, name: user.name }))
+    try {
+      const response = await apiService.post('/api/login', {
+        email,
+        password
+      })
+
+      const { token, user } = response.data
+      
+      // Save token and user data
+      setToken(token)
+      localStorage.setItem("currentUser", JSON.stringify(user))
+      
+      toast.success("Login Successful", `Welcome back, ${user.firstName || user.email}!`)
       router.push("/")
-    } else {
-      setError("Invalid email or password")
+    } catch (error: any) {
+      console.error('Login error:', error)
+      const errorMessage = error.response?.data?.message || "Invalid email or password"
+      setError(errorMessage)
+      toast.error("Login Failed", errorMessage)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -80,9 +100,9 @@ export default function LoginPage() {
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full">
-              Sign In
+          <CardFooter className="flex flex-col space-y-4 mt-2">
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing In..." : "Sign In"}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
               Don't have an account?{" "}

@@ -14,17 +14,20 @@ import {
 import { useRouter } from "next/navigation"
 import { logout, getCurrentUser } from "@/lib/auth"
 import { useEffect, useState } from "react"
+import { useToast } from "@/lib/hooks/use-toast"
 
 export function DashboardHeader() {
   const router = useRouter()
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null)
-
+  const toast = useToast()
+  const [user, setUser] = useState<{ last_name: string; first_name: string; email: string } | null>(null)
+  
   useEffect(() => {
     setUser(getCurrentUser())
   }, [])
 
   const handleLogout = () => {
     logout()
+    toast.info("Logged Out", "You have been successfully logged out")
     router.push("/login")
   }
 
@@ -72,7 +75,7 @@ export function DashboardHeader() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">{user?.name || "User"}</p>
+                    <p className="text-sm font-medium">{user?.last_name || ""} {user?.first_name || ""}</p>
                     <p className="text-xs text-muted-foreground">{user?.email || ""}</p>
                   </div>
                 </DropdownMenuLabel>
